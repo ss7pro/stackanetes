@@ -29,4 +29,4 @@ files:
   container_path: /etc/rabbitmq
   templates:
   - rabbitmq/templates/rabbitmq_clusterer.config.j2
-  non_root: true
+non_root: true
