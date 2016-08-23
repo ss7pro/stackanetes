@@ -23,7 +23,7 @@ CONF = cfg.CONF
 CONF.import_group('stackanetes', 'stackanetes.config.stackanetes')
 CONF.import_group('ceph', 'stackanetes.config.ceph')
 GENERIC_TYPES = ['job', 'deployment', 'daemonset']
-CUSTOM_TYPES = ['fluentd-elasticsearch', 'rgw']
+CUSTOM_TYPES = ['fluentd-elasticsearch', 'rgw', 'mariadb-galera', 'mariadb-galera-seed']
 DEPENDENCY_PREFIX = "DEPENDENCY_"
 
 

@@ -1,0 +1,83 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ namespace }}
+  name: {{ service_name }}
+spec:
+  template:
+    metadata:
+      namespace: {{ namespace }}
+      name: {{ service_name }}
+      labels:
+        mariadb-galera: seed
+        mariadb-cluster: stackanetes
+      annotations:
+{%- for key, value in annotations.iteritems() %}
+        {{ key }}: {{value}}
+{%- endfor %}
+    spec:
+      restartPolicy: OnFailure
+      # TODO(DTadrzak): it must be removed in future
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: {{ service_name }}
+{%- if privileged %}
+          securityContext:
+            privileged: true
+{%- endif %}
+{%- if image %}
+          image: {{ docker_registry }}/{{ image_prefix }}{{ image }}:{{ image_version }}
+{%- else %}
+          image: {{ docker_registry }}/{{ image_prefix }}kolla-toolbox:{{ image_version }}
+{%- endif %}
+          imagePullPolicy: Always
+          env:
+            - name: INTERFACE_NAME
+              value: "eth0"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+{%- for env in envs %}
+            - name: {{ env.keys()[0] }}
+              value: {{ env.values()[0] }}
+{%- endfor %}
+{%- if ports != [] %}
+          ports:
+    {%- for port in ports %}
+          - containerPort: {{ port['target_port'] }}
+            name: {{ service_name.split('-')[0] }}{{ port['target_port'] }}
+            protocol: TCP
+    {%- endfor %}
+{%- endif %}
+          volumeMounts:
+{%- for configmap in configmaps %}
+            - name: {{ configmap['configmap_name'] }}
+              mountPath: /configmaps/{{ configmap['file_name'] }}
+{%- endfor %}
+{%- if host_network %}
+      hostNetwork: true
+{%- endif %}
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - mysql -uroot -p${DB_ROOT_PASSWORD} -e'show status' | grep 'wsrep_cluster_status'
+                | grep 'Primary'
+
+      volumes:
+{%- for configmap in configmaps %}
+        - name: {{ configmap['configmap_name'] }}
+          configMap:
+            name: {{ configmap['configmap_name'] }}
+            items:
+            - key: {{ configmap['file_name'] }}
+              path: {{ configmap['file_name'] }}
+{%- endfor %}

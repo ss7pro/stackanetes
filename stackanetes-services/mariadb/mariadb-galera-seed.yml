@@ -1,0 +1,65 @@
+type: custom/mariadb-galera-seed
+name: mariadb-galera-seed
+label: openstack-control-plane
+command: "bash /tmp/galera-seed.sh"
+image: mariadb
+ports:
+  - port: 3306
+envs:
+# TODO(tomasz.paszkowski): FIXME
+  - DB_ROOT_PASSWORD: "password"
+emptyDirs:
+- name: mysql
+  container_path: /var/lib/mysql
+  read_only: false
+files: 
+  - file_name: peer-finder.py
+    configmap_name: peer-finder-py
+    container_path: /tmp
+    templates:
+      - mariadb-galera/templates/peer-finder.py
+  - file_name: galera-seed.sh
+    configmap_name: galera-seed-sh
+    container_path: /tmp
+    templates:
+      - mariadb-galera/templates/galera-seed.sh.j2
+  - file_name: my.cnf
+    configmap_name: etc-my-cnf
+    container_path: /etc
+    templates:
+      - mariadb-galera/templates/etc_my.cnf.j2
+  - file_name: charsets.cnf
+    configmap_name: charsets-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/charsets.cnf.j2
+  - file_name: engine.cnf
+    configmap_name: engine-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/engine.cnf.j2
+  - file_name: galera.cnf
+    configmap_name: galera-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/galera.cnf.j2
+  - file_name: log.cnf
+    configmap_name: log-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/log.cnf.j2
+  - file_name: networking.cnf
+    configmap_name: networking-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/networking.cnf.j2
+  - file_name: pid.cnf
+    configmap_name: pid-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/pid.cnf.j2
+  - file_name: tuning.cnf
+    configmap_name: tuning-cnf-j2
+    container_path: /etc/my.cnf.d
+    templates:
+      - mariadb-galera/templates/tuning.cnf.j2
