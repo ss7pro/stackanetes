@@ -9,6 +9,9 @@ spec:
     metadata:
       namespace: {{ namespace }}
       name: {{ service_name }}
+{%- for key, value in metadata_label.iteritems() %}
+        {{ key }}: {{value}}
+{%- endfor %}
       annotations:
 {%- for key, value in annotations.iteritems() %}
         {{ key }}: {{value}}
@@ -45,6 +48,25 @@ spec:
             - name: {{ env.keys()[0] }}
               value: {{ env.values()[0] }}
 {%- endfor %}
+          ports:
+{%- if ports != [] %}
+    {%- for port in ports %}
+          - containerPort: {{ port['target_port'] }}
+            name: {{ service_name.split('-')[0] }}{{ port['target_port'] }}
+            protocol: TCP
+    {%- endfor %}
+{%- endif %}
+          readinessProbe:
+    {%- if readiness_exec %}
+            exec:
+              command:
+              {%- for exec_line in readiness_exec %}
+              - {{ exec_line }}
+              {%- endfor %}
+    {%- elif ports != [] %}
+            tcpSocket:
+              port: {{ ports[0]['target_port'] }}
+    {%- endif %}
           volumeMounts:
 {%- for configmap in configmaps %}
             - name: {{ configmap['configmap_name'] }}
