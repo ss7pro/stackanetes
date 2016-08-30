@@ -49,9 +49,8 @@ spec:
       hostPID: true
 {%- endif %}
 {%- if label %}
-#TODO(tomasz.paszkowski): FIXME
-#      nodeSelector:
-#        {{ label }}: enabled
+      nodeSelector:
+        {{ label }}: enabled
 {% endif %}
       securityContext:
         runAsUser: 0
