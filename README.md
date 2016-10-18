@@ -60,7 +60,7 @@ Internal traffic (i.e. inside the Kubernetes cluster) is load-balanced natively 
 
 When it comes to data availability for Cinder and Glance, Stackanetes relies on the storage backend being used.
 
-High availability is not yet guaranteed for MariaDB, RabbitMQ, Elasticsearch (Searchlight) nor Memcached (Horizon).
+High availability is not yet guaranteed for Elasticsearch (Searchlight).
 
 [services]: http://kubernetes.io/docs/user-guide/services/
 
@@ -72,10 +72,12 @@ High availability is not yet guaranteed for MariaDB, RabbitMQ, Elasticsearch (Se
 
 To setup Kubernetes, the [CoreOS guides] may be used.
 
-Two nodes must be labelled for Stackanetes' usage:
+At least two nodes must be labelled for Stackanetes' usage:
 
     kubectl label node minion1 openstack-control-plane=enabled
     kubectl label node minion2 openstack-compute-node=enabled
+
+Following Galera guidelines, it's required to keep odd number of `openstack-control-plane` nodes. For development setup purposes, it's allowed to build one-node cluster.
 
 [CoreOS guides]: https://coreos.com/kubernetes/docs/latest/
 
