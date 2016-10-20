@@ -9,7 +9,7 @@ kpm.package({
     name: "stackanetes/keystone",
     expander: "jinja2",
     author: "Quentin Machu",
-    version: "0.0.0",
+    version: "0.2.0",
     description: "keystone",
     license: "Apache 2.0",
   },
